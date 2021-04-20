@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang='ko'>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 위 3개의 메타 태그는 *반드시* head 태그의 처음에 와야합니다; 어떤 다른 콘텐츠들은 반드시 이 태그들 *다음에* 와야 합니다 -->
+	<!-- 합쳐지고 최소화된 최신 CSS -->
+	<link rel="stylesheet" href="/WEB_H01/css/bootstrap.min.css">
+	
+	<!-- 부가적인 테마 -->
+	<link rel="stylesheet" href="/WEB_H01/css/bootstrap-theme.min.css">
+
+	
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>	
+	<!-- 합쳐지고 최소화된 최신 자바스크립트 -->
+	<script src="/WEB_H01/js/bootstrap.min.js"></script>
+    
+<title>게시 목록</title>
+<!-- jquery document ready -->
+<!-- <body onload="alert('onload');"> -->
+<body >
+
+	<!-- div container -->
+	<div class="wrap container">
+	   <!-- header -->
+		<jsp:include page="/inc/header.jsp"></jsp:include>
+	   <!--//header -->
+	 	<!-- 제목 -->
+	 	<div class="page-header">
+	 		<h2>게시 목록</h2>
+	 	</div>
+	    <!--// 제목 -->
+	    
+	    <!-- 버튼 -->
+	    <div class="row text-right">
+	    	<label class="col-xs-4 col-sm-3 col-md-2 col-lg-2"></label>
+	        <div   class="col-xs-8 col-sm-9 col-md-10 col-lg-10">
+	        	<input type="button" class="btn btn-primary btn-sm"  value="목록" id="move_to_list"/>
+	        	<input type="button" class="btn btn-primary btn-sm"  value="등록" onclick="doInsert();"/>
+	        </div>
+	    </div>
+	    <!--// 버튼 -->
+	    
+        <!-- form -->
+    	<form action="<%=cPath %>/board/board.do" method="post" id="regFrm" name="regFrm" class="form-horizontal">
+    	    <input type="hidden" name="word_div" value=""/>
+	        
+        </form>         
+        <!--// form -->
+	    
+	    <!-- footer -->		
+		<jsp:include page="/inc/footer.jsp"></jsp:include>
+		<!--// footer -->	
+
+     </div>
+     <!--// contents -->
+    <!-- javascript -->
+    <script type="text/javascript">
+    
+		//jquery 객채생성이 완료
+		$(document).ready(function() {
+			console.log("1.document:최초수행!");
+	
+		});//--document ready
+
+    
+    </script>
+    <!--// javascript -->    
+</body>
+</html>

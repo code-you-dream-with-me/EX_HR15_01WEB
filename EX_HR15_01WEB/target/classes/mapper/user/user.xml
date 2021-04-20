@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sist.ehr.member">
+    
+    <select id="getAll" parameterType="User" resultMap="userResult">
+		 SELECT               
+		     u_id,            
+		     name,            
+		     passwd,          
+		     u_level,         
+		     login,           
+		     recommend,       
+		     email,           
+		     TO_CHAR(reg_dt,'YYYY/MM/DD HH24MISS') reg_dt   
+		 FROM hr_member             
+		 WHERE u_id LIKE #{uId} ||'%'    
+		 ORDER BY u_id         
+    </select>
+    
+    
+    <!-- https://mybatis.org/mybatis-3/ko/sqlmap-xml.html -->
+    <!--id PK property=VO pk 속성 column=테이블 컬럼  -->
+	<resultMap type="User" id="userResult">
+	   <id  property="uId" column="u_id"/>
+	   <result property="name" column="name"/>
+	   <result property="passwd" column="passwd"/>
+	   <result property="intLevel" column="u_level"/>
+	   <result property="login" column="login"/>
+	   <result property="recommend" column="recommend"/>
+	   <result property="email" column="email"/>
+	   <result property="regDt" column="reg_dt"/>
+	</resultMap>
+
+    <!--sql 이 엘리먼트는 다른 구문에서 재사용가능한 SQL구문을 정의할 때 사용된다 -->
+    <!-- where 엘리먼트는 태그에 의해 컨텐츠가 리턴되면 단순히 “WHERE”만을 추가한다. 
+    게다가 컨텐츠가 “AND”나 “OR”로 시작한다면 그 “AND”나 “OR”를 지워버린다. -->
+	<sql id="searchCondition">
+	    <where>
+			 <choose>
+			 	<when test=" '10' == searchDiv ">
+			 	   name LIKE  #{searchWord} ||'%'
+			 	</when>
+			 	<when test=" '20' == searchDiv ">
+			 	   u_id LIKE  #{searchWord} ||'%'
+			 	</when>	
+			 	<when test=" '30' == searchDiv ">
+			 	   email LIKE  #{searchWord} ||'%'
+			 	</when>					 					 	
+			 </choose>
+		</where>	 	
+	</sql>
+
+
+    <select id="doRetrieve" parameterType="Search" resultType="User">
+         
+		 SELECT A.*,B.*                                                                                      
+		 FROM(                                                                                               
+		     SELECT t2.rnum      as num,                                                                                 
+		            t2.u_id      as "uId",                                                                                 
+		            t2.name,                                                                                 
+		            t2.passwd,                                                                                 
+		            t2.u_level   as intLevel,                                                                              
+		            t2.login,                                                                                
+		            t2.recommend,                                                                            
+		            t2.email,                                                                                
+		            DECODE(TO_CHAR(SYSDATE,'YYYYMMDD'),TO_CHAR(t2.reg_dt,'YYYYMMDD')                         
+		                   ,TO_CHAR(t2.reg_dt,'HH24:MI')                                                     
+		                   ,TO_CHAR(t2.reg_dt,'YYYY/MM/DD')) AS regDt                                      
+		     FROM(                                                                                           
+		         SELECT ROWNUM rnum,t1.*                                                                     
+		         FROM (                                                                                      
+		             SELECT *                                                                                
+		             FROM hr_member   
+		             <include refid="searchCondition"/>
+		             ORDER BY reg_dt DESC                                                                    
+		         )t1    
+		         <![CDATA[ 
+		         WHERE  ROWNUM <= (#{pageSize} * (#{pageNum}-1) + #{pageSize})                                                                                    
+		     )t2
+		     WHERE  rnum >= (#{pageSize} * (#{pageNum}-1) + 1)   
+		      ]]>                                                                                              
+		 )A                                                                                                  
+		 CROSS JOIN                                                                                          
+		     (SELECT COUNT(*) totalCnt                                                                      
+		      FROM hr_member   	 
+		      <include refid="searchCondition"/>	
+		     )B     	
+         
+    </select>
+
+    <update id="doUpdate" parameterType="User">
+		 UPDATE hr_member  
+		 SET               
+		    name      = #{name},
+		 	passwd    = #{passwd},
+		 	u_level   = #{intLevel},
+		 	login     = #{login},
+		 	recommend = #{recommend},
+		 	email     = #{email},
+		 	reg_dt    = SYSDATE
+		 WHERE u_id =  #{uId}            
+    </update>
+    
+	<select id="count" parameterType="User" resultType="int">
+		SELECT COUNT(*) cnt
+		FROM hr_member 
+		WHERE U_ID LIKE #{uId} ||'%'
+	</select>
+	
+    <!-- 부등호 사용: -->
+    <!--부등호를 쓸때,문자 그래도 해석이 필요한 경우 사용. <![CDATA[ ]]> -->
+	<!-- doSelectOne: u_id oracle 키워드로 사용 불가( u_id AS "uId" )  -->
+	<select id="doSelectOne" parameterType="User" resultMap="userResult">
+	    <![CDATA[
+		SELECT u_id,
+			 name,
+			 passwd,
+			 u_level,
+			 login,
+			 recommend,       
+			 email,
+			 TO_CHAR(reg_dt,'YYYY/MM/DD HH24MISS') reg_dt     
+		FROM hr_member        
+		WHERE u_id = #{uId}
+		]]>
+	</select>
+
+	<!-- delete -->
+	<delete id="doDelete" parameterType="User">
+		DELETE FROM hr_member 
+		WHERE  u_id = #{uId}  	
+	</delete>
+	
+	<!-- insert -->
+	<insert id="doInsert" parameterType="User">
+		 INSERT INTO hr_member ( 
+		     u_id,               
+		     name,               
+		     passwd,             		
+		     u_level,            
+		     login,              
+		     recommend,          
+		     email,              
+		     reg_dt              
+		 ) VALUES (              
+		     #{uId},                  
+		     #{name},                  
+		     #{passwd},                  
+		     #{intLevel},                  
+		     #{login},                  
+		     #{recommend},                  
+		     #{email},                  
+		     SYSDATE             
+		 )	
+	</insert>
+	
+</mapper>
